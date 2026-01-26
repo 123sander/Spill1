@@ -1,174 +1,531 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-<meta charset="UTF-8">
-<title>Cube Dash</title>
-<style>
-body {
- margin: 0;
- background: #000;
- overflow: hidden;
-}
-canvas {
- display: block;
- margin: auto;
-}
-</style>
+  <meta charset="UTF-8" />
+  <title>Wacky Fliper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-dark: #050816;
+      --bg-card: #111827;
+      --accent: #f97316;
+      --accent-soft: #fed7aa;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      background: linear-gradient(to bottom, rgba(15,23,42,0.9), rgba(15,23,42,0.2));
+      border-bottom: 1px solid rgba(148,163,184,0.2);
+    }
+
+    .nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #f97316, #ea580c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      box-shadow: 0 0 18px rgba(248, 113, 113, 0.6);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.2rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .nav-links a {
+      padding: 0.3rem 0.4rem;
+      border-radius: 999px;
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+      background: rgba(148,163,184,0.15);
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .pill {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 250, 252, 0.2);
+      color: var(--accent-soft);
+      background: rgba(15,23,42,0.7);
+    }
+
+    .btn-primary {
+      border-radius: 999px;
+      padding: 0.45rem 1.1rem;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      color: #0b1120;
+      box-shadow: 0 10px 25px rgba(248, 113, 22, 0.45);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(248, 113, 22, 0.6);
+    }
+
+    main {
+      flex: 1;
+    }
+
+    .hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 3.5rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.8);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .hero-kicker span {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34,197,94,0.8);
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 4vw, 3rem);
+      line-height: 1.05;
+      margin-bottom: 0.7rem;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #f97316, #fb7185);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      max-width: 32rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+      margin-bottom: 1.4rem;
+    }
+
+    .btn-ghost {
+      border-radius: 999px;
+      padding: 0.45rem 1rem;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15,23,42,0.7);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: border 0.12s ease, background 0.12s ease, color 0.12s ease;
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(248,250,252,0.7);
+      color: var(--text-main);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .hero-meta strong {
+      color: var(--accent-soft);
+      font-weight: 600;
+    }
+
+    .hero-card {
+      background: radial-gradient(circle at top left, rgba(248,113,22,0.25), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(59,130,246,0.25), transparent 55%),
+                  #020617;
+      border-radius: 26px;
+      padding: 1.4rem;
+      border: 1px solid rgba(148,163,184,0.35);
+      box-shadow:
+        0 18px 45px rgba(15,23,42,0.9),
+        0 0 0 1px rgba(15,23,42,0.9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .hero-card-tag {
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(148,163,184,0.5);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .hero-card-main {
+      background: rgba(15,23,42,0.85);
+      border-radius: 20px;
+      padding: 1rem;
+      border: 1px solid rgba(148,163,184,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-character {
+      height: 150px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #0f172a, #020617);
+      border: 1px solid rgba(148,163,184,0.4);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 0.9rem;
+    }
+
+    .hero-character::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(248,113,22,0.4), transparent 55%),
+        radial-gradient(circle at 80% 80%, rgba(59,130,246,0.4), transparent 55%);
+      mix-blend-mode: screen;
+    }
+
+    .hero-character-circle {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      border-radius: 999px;
+      border: 2px solid rgba(248,250,252,0.7);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-12deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-soft);
+      font-weight: 700;
+      font-size: 0.8rem;
+      background: rgba(15,23,42,0.7);
+      box-shadow: 0 0 25px rgba(248,113,22,0.7);
+    }
+
+    .hero-character-platform {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #f97316, #ef4444);
+      box-shadow: 0 10px 25px rgba(15,23,42,0.9);
+    }
+
+    .hero-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .hero-card-footer span strong {
+      color: var(--accent-soft);
+      font-weight: 600;
+    }
+
+    .hero-card-footer button {
+      border-radius: 999px;
+      border: none;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.78rem;
+      cursor: pointer;
+      background: rgba(15,23,42,0.9);
+      color: var(--accent-soft);
+      border: 1px solid rgba(248,250,252,0.2);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: background 0.12s ease, border 0.12s ease;
+    }
+
+    .hero-card-footer button:hover {
+      background: rgba(15,23,42,1);
+      border-color: rgba(248,250,252,0.5);
+    }
+
+    .badge-floating {
+      position: absolute;
+      top: 1.1rem;
+      right: 1.1rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(248,250,252,0.2);
+      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: var(--accent-soft);
+    }
+
+    .badge-floating-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34,197,94,0.8);
+    }
+
+    footer {
+      border-top: 1px solid rgba(30,64,175,0.6);
+      background: radial-gradient(circle at top, rgba(30,64,175,0.4), #020617 55%);
+      padding: 1.2rem 1.5rem 1.6rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      opacity: 0.8;
+    }
+
+    .footer-links a:hover {
+      opacity: 1;
+    }
+
+    @media (max-width: 840px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+        padding-top: 2rem;
+      }
+      .hero-card {
+        order: -1;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .hero {
+        padding-inline: 1.1rem;
+      }
+      .nav {
+        padding-inline: 1.1rem;
+      }
+      .hero-actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <nav class="nav">
+      <div class="logo">
+        <div class="logo-badge">WF</div>
+        <span>Wacky Fliper</span>
+      </div>
+      <div class="nav-links">
+        <a href="#play">Spill</a>
+        <a href="#features">Funksjoner</a>
+        <a href="#howto">Hvordan spille</a>
+      </div>
+      <div class="nav-cta">
+        <span class="pill">Gratis nettspill</span>
+        <button class="btn-primary">
+          ▶ Spill nå
+        </button>
+      </div>
+    </nav>
+  </header>
 
-<canvas id="game" width="900" height="350"></canvas>
+  <main>
+    <section class="hero" id="play">
+      <div>
+        <div class="hero-kicker">
+          <span></span>
+          Live ragdoll‑parkour i nettleseren
+        </div>
+        <h1 class="hero-title">
+          Flipp, land og <span>krasj</span> med stil.
+        </h1>
+        <p class="hero-subtitle">
+          Wacky Fliper er et fysikkbasert parkour‑spill der du lader hoppet,
+          spinner i lufta og prøver å lande perfekt på plattformene. Ett feil
+          timing, og du flyr i bakken.
+        </p>
+        <div class="hero-actions">
+          <button class="btn-primary">
+            ▶ Start spillet
+          </button>
+          <button class="btn-ghost">
+            ℹ Lær kontrollene
+          </button>
+        </div>
+        <div class="hero-meta">
+          <span><strong>3M+</strong> hopp utført</span>
+          <span><strong>Ingen nedlasting</strong> – spill rett i nettleseren</span>
+          <span><strong>Skill‑basert</strong> fysikk og timing</span>
+        </div>
+      </div>
 
-<script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+      <aside class="hero-card">
+        <div class="badge-floating">
+          <span class="badge-floating-dot"></span>
+          Live: 128 spillere
+        </div>
 
-const groundY = 270;
-const speed = 6;
+        <div class="hero-card-header">
+          <span>Wacky Fliper – Demo</span>
+          <span>Parkour • Ragdoll • Skill</span>
+        </div>
 
-const player = {
- x: 180,
- y: groundY - 30,
- size: 30,
- yVel: 0,
- gravity: 0.9,
- jump: -14,
- rotation: 0,
- onGround: true
-};
+        <div class="hero-card-main">
+          <div class="hero-character">
+            <div class="hero-character-circle">
+              3x FLIP
+            </div>
+            <div class="hero-character-platform"></div>
+          </div>
+          <div class="hero-card-footer">
+            <span>
+              Neste hopp: <strong>Rooftop Run</strong>
+            </span>
+            <button>
+              ▶ Spill 30 sekunder
+            </button>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
 
-let spikes = [];
-let tick = 0;
-let running = true;
-let score = 0;
-
-// Forhåndsdefinerte GD-aktige patterns
-const patterns = [
- [30],
- [30,30],
- [30,30,30],
- [50,30],
- [30,50,30],
- [30,30,50],
- [50,50],
- [30,30,30,30]
-];
-
-function spawnPattern() {
- const pattern = patterns[tick % patterns.length];
- let offset = 0;
-
- pattern.forEach(h => {
-   spikes.push({
-     x: canvas.width + offset,
-     w: 30,
-     h: h
-   });
-   offset += 32;
- });
-}
-
-// Input
-document.addEventListener("keydown", e => {
- if (e.code === "Space" && player.onGround) {
-   player.yVel = player.jump;
-   player.onGround = false;
- }
-});
-
-// Update
-function update() {
- // Player physics
- player.yVel += player.gravity;
- player.y += player.yVel;
-
- if (player.y >= groundY - player.size) {
-   player.y = groundY - player.size;
-   player.yVel = 0;
-   player.onGround = true;
-   player.rotation = 0;
- } else {
-   player.rotation += 0.2;
- }
-
- // Spikes
- spikes.forEach(s => s.x -= speed);
- spikes = spikes.filter(s => s.x > -50);
-
- if (tick % 90 === 0) spawnPattern();
-
- // Collision
- spikes.forEach(s => {
-   if (
-     player.x < s.x + s.w &&
-     player.x + player.size > s.x &&
-     player.y + player.size > groundY - s.h
-   ) {
-     running = false;
-     alert("Game Over\nScore: " + score);
-     location.reload();
-   }
- });
-
- score++;
- tick++;
-}
-
-// Draw
-function drawBackground() {
- ctx.fillStyle = "#0b0b1e";
- ctx.fillRect(0,0,canvas.width,canvas.height);
-
- ctx.strokeStyle = "#1ff";
- ctx.globalAlpha = 0.15;
- for (let i = 0; i < canvas.width; i += 40) {
-   ctx.beginPath();
-   ctx.moveTo(i, 0);
-   ctx.lineTo(i, canvas.height);
-   ctx.stroke();
- }
- ctx.globalAlpha = 1;
-}
-
-function draw() {
- drawBackground();
-
- // Ground
- ctx.fillStyle = "#111";
- ctx.fillRect(0, groundY, canvas.width, 80);
-
- // Player
- ctx.save();
- ctx.translate(player.x + 15, player.y + 15);
- ctx.rotate(player.rotation);
- ctx.fillStyle = "#00ffff";
- ctx.fillRect(-15, -15, 30, 30);
- ctx.restore();
-
- // Spikes
- ctx.fillStyle = "#ff0055";
- spikes.forEach(s => {
-   ctx.beginPath();
-   ctx.moveTo(s.x, groundY);
-   ctx.lineTo(s.x + s.w / 2, groundY - s.h);
-   ctx.lineTo(s.x + s.w, groundY);
-   ctx.fill();
- });
-
- ctx.fillStyle = "#fff";
- ctx.fillText("Score: " + score, 15, 25);
-}
-
-// Loop
-function loop() {
- if (!running) return;
- update();
- draw();
- requestAnimationFrame(loop);
-}
-
-loop();
-</script>
-
+  <footer>
+    <div class="footer-inner">
+      <span>© 2026 Wacky Fliper. Lag din egen versjon – ikke kopier andres kode.</span>
+      <div class="footer-links">
+        <a href="#features">Funksjoner</a>
+        <a href="#howto">Kontroller</a>
+        <a href="#privacy">Personvern</a>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
