@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<title>Cube Dash</title>
+<style>
+body {
+ margin: 0;
+ background: #000;
+ overflow: hidden;
+}
+canvas {
+ display: block;
+ margin: auto;
+}
+</style>
+</head>
+<body>
+
+<canvas id="game" width="900" height="350"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const groundY = 270;
+const speed = 6;
+
+const player = {
+ x: 180,
+ y: groundY - 30,
+ size: 30,
+ yVel: 0,
+ gravity: 0.9,
+ jump: -14,
+ rotation: 0,
+ onGround: true
+};
+
+let spikes = [];
+let tick = 0;
+let running = true;
+let score = 0;
+
+// Forhåndsdefinerte GD-aktige patterns
+const patterns = [
+ [30],
+ [30,30],
+ [30,30,30],
+ [50,30],
+ [30,50,30],
+ [30,30,50],
+ [50,50],
+ [30,30,30,30]
+];
+
+function spawnPattern() {
+ const pattern = patterns[tick % patterns.length];
+ let offset = 0;
+
+ pattern.forEach(h => {
+   spikes.push({
+     x: canvas.width + offset,
+     w: 30,
+     h: h
+   });
+   offset += 32;
+ });
+}
+
+// Input
+document.addEventListener("keydown", e => {
+ if (e.code === "Space" && player.onGround) {
+   player.yVel = player.jump;
+   player.onGround = false;
+ }
+});
+
+// Update
+function update() {
+ // Player physics
+ player.yVel += player.gravity;
+ player.y += player.yVel;
+
+ if (player.y >= groundY - player.size) {
+   player.y = groundY - player.size;
+   player.yVel = 0;
+   player.onGround = true;
+   player.rotation = 0;
+ } else {
+   player.rotation += 0.2;
+ }
+
+ // Spikes
+ spikes.forEach(s => s.x -= speed);
+ spikes = spikes.filter(s => s.x > -50);
+
+ if (tick % 90 === 0) spawnPattern();
+
+ // Collision
+ spikes.forEach(s => {
+   if (
+     player.x < s.x + s.w &&
+     player.x + player.size > s.x &&
+     player.y + player.size > groundY - s.h
+   ) {
+     running = false;
+     alert("Game Over\nScore: " + score);
+     location.reload();
+   }
+ });
+
+ score++;
+ tick++;
+}
+
+// Draw
+function drawBackground() {
+ ctx.fillStyle = "#0b0b1e";
+ ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ ctx.strokeStyle = "#1ff";
+ ctx.globalAlpha = 0.15;
+ for (let i = 0; i < canvas.width; i += 40) {
+   ctx.beginPath();
+   ctx.moveTo(i, 0);
+   ctx.lineTo(i, canvas.height);
+   ctx.stroke();
+ }
+ ctx.globalAlpha = 1;
+}
+
+function draw() {
+ drawBackground();
+
+ // Ground
+ ctx.fillStyle = "#111";
+ ctx.fillRect(0, groundY, canvas.width, 80);
+
+ // Player
+ ctx.save();
+ ctx.translate(player.x + 15, player.y + 15);
+ ctx.rotate(player.rotation);
+ ctx.fillStyle = "#00ffff";
+ ctx.fillRect(-15, -15, 30, 30);
+ ctx.restore();
+
+ // Spikes
+ ctx.fillStyle = "#ff0055";
+ spikes.forEach(s => {
+   ctx.beginPath();
+   ctx.moveTo(s.x, groundY);
+   ctx.lineTo(s.x + s.w / 2, groundY - s.h);
+   ctx.lineTo(s.x + s.w, groundY);
+   ctx.fill();
+ });
+
+ ctx.fillStyle = "#fff";
+ ctx.fillText("Score: " + score, 15, 25);
+}
+
+// Loop
+function loop() {
+ if (!running) return;
+ update();
+ draw();
+ requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+
+</body>
+</html>
